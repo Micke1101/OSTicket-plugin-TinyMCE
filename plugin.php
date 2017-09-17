@@ -1,6 +1,6 @@
 <?php return array(
     'id' => 'tinymce',
-    'version' => '0.1',
+    'version' => '0.1.1',
     'name' => 'TinyMCE',
     'author' => 'Micke1101',
     'description' => 'Replaces the standard editor redactor with TinyMCE.',

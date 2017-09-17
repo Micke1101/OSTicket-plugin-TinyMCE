@@ -253,6 +253,7 @@ $(function() {
             branding: {TINYMCE_POWERED_BY},
             plugins: '{TINYMCE_PLUGINS}',
             toolbar: '{TINYMCE_TOOLBAR}',
+            {TINYMCE_AUTOSAVEOPTIONS},
             /*content_css: [
             '//fonts.googleapis.com/css?family=Lato:300,300i,400,400i',
             '//www.tinymce.com/css/codepen.min.css']*/

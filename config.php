@@ -32,6 +32,11 @@ class TinyMCEPluginConfig extends PluginConfig
     {
         list ($__, $_N) = self::translate();
         return array(
+            'mainoptions' => new SectionBreakField([
+                'label' => $__('Main options'),
+                'hint' => $__('Mainly visual settings.'),
+                'default' => TRUE
+            ]),
             'plugins' => new ChoiceField([
                 'label' => $__('Plugins'),
                 'required' => false,
@@ -71,7 +76,7 @@ class TinyMCEPluginConfig extends PluginConfig
             'theme' => new ChoiceField([
                 'label' => $__('Theme'),
                 'required' => true,
-                'hint' => $__('What plugins do you want to load.'),
+                'hint' => $__('What theme do you want to use.'),
                 'default' => 'modern',
                 'choices' => array(
                     'modern' => __('Modern'),
@@ -96,7 +101,40 @@ class TinyMCEPluginConfig extends PluginConfig
                 'validator' => 'number',
                 'hint' => $__('The default height of TinyMCE'),
                 'default' => '250'
-            ])
+            ]),
+            'autosaveoptions' => new SectionBreakField([
+                'label' => $__('Autosave options'),
+                'hint' => $__('The options regarding autosaving/drafts.'),
+                'default' => TRUE
+            ]),
+            'doautosave' => new BooleanField([
+                'label' => $__('Enable autosaving'),
+                'required' => false,
+                'hint' => $__('TinyMCE will create drafts automaticly.'),
+                'default' => true
+            ]),
+            'autosaveinterval' => new TextboxField([
+                'label' => $__('Autosave frequency'),
+                'required' => false,
+                'size'=>16,
+                'validator' => 'number',
+                'hint' => $__('How long between each save in seconds.'),
+                'default' => '30'
+            ]),
+            'tryrestoreempty' => new BooleanField([
+                'label' => $__('Restore when empty'),
+                'required' => false,
+                'hint' => $__('If the user has a draft available restore it automaticly.'),
+                'default' => true
+            ]),
+            'autosaveretention' => new TextboxField([
+                'label' => $__('Draft lifespan'),
+                'required' => false,
+                'size'=>16,
+                'validator' => 'number',
+                'hint' => $__('How long should a draft be stored for in minutes.'),
+                'default' => '30'
+            ]),
         );
     }
 }
