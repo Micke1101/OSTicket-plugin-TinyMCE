@@ -12,6 +12,7 @@ if (typeof RedactorPlugins === 'undefined') var RedactorPlugins = {};
  * uploads. Furthermore, the id of the staff is considered for the drafts,
  * so one user will not retrieve drafts for another user.
  */
+ 
 RedactorPlugins.draft = function() {
   return {
     init: function() {
@@ -230,6 +231,192 @@ RedactorPlugins.signature = function() {
   }
 };
 
+//Start typeahead
+
+watchtypeahead = function(e, sender) {
+	var current = sender.selection.getContent(),
+		allText = sender.selection.getRng().endContainer.data,
+		offset = sender.selection.getRng().endOffset,
+		lhs = allText.substring(0, offset),
+		search = new RegExp(/%\{([^}]*)$/),
+		match;
+
+	if (!lhs) {
+		return !e.isDefaultPrevented();
+	}
+
+	if (e.which == 27 || !(match = search.exec(lhs)))
+		// No longer in a element — close typeahead
+		return destroytypeahead();
+
+	if (e.type == 'click')
+		return;
+
+	// Locate the position of the cursor and the number of characters back
+	// to the `%{` symbols
+	var sel         = this.selection.get(),
+		range       = this.sel.getRangeAt(0),
+		content     = current.textContent,
+		clientRects = range.getClientRects(),
+		position    = clientRects[0],
+		backText    = match[1],
+		parent      = this.selection.getParent() || this.$editor,
+		plugin      = this.contexttypeahead;
+
+	// Insert a hidden text input to receive the typed text and add a
+	// typeahead widget
+	if (!this.contexttypeahead.typeahead) {
+		this.contexttypeahead.typeahead = $('<input type="text">')
+			.css({position: 'absolute', visibility: 'hidden'})
+			.width(0).height(position.height - 4)
+			.appendTo(document.body)
+			.typeahead({
+				property: 'variable',
+				minLength: 0,
+				arrow: $('<span class="pull-right"><i class="icon-muted icon-chevron-right"></i></span>')
+					.css('padding', '0 0 0 6px'),
+				highlighter: function(variable, item) {
+					var base = $.fn.typeahead.Constructor.prototype.highlighter
+						.call(this, variable),
+						further = new RegExp(variable + '\\.'),
+						extendable = Object.keys(plugin.variables).some(function(v) {
+						return v.match(further);
+						}),
+						arrow = extendable ? this.options.arrow.clone() : '';
+
+					return $('<div/>').html(base).prepend(arrow).html()
+						+ $('<span class="faded">')
+						.text(' — ' + item.desc)
+						.wrap('<div>').parent().html();
+				},
+				item: '<li><a href="#" style="display:block"></a></li>',
+				source: this.contexttypeahead.getContext.bind(this),
+				sorter: function(items) {
+					items.sort(
+						function(a,b) {return a.variable > b.variable ? 1 : -1;}
+					);
+					return items;
+				},
+				matcher: function(item) {
+					if (item.toLowerCase().indexOf(this.query.toLowerCase()) !== 0)
+						return false;
+
+					return (this.query.match(/\./g) || []).length == (item.match(/\./g) || []).length;
+				},
+				onselect: this.contexttypeahead.select.bind(this),
+				scroll: true,
+				items: 100
+			});
+	}
+
+	if (position) {
+		var width = plugin.textWidth(
+			backText,
+			this.selection.getParent() || $('<div class="redactor-editor">')
+		),
+		pleft = $(parent).offset().left,
+		left = position.left - width;
+
+		if (left < pleft)
+			// This is a bug in chrome, but I'm not sure how to adjust it
+			left += pleft;
+
+		plugin.typeahead
+		.css({top: position.top + $(window).scrollTop(), left: left});
+	}
+
+	plugin.typeahead
+		.val(match[1])
+		.trigger(e);
+
+	return !e.isDefaultPrevented();
+}
+
+getContexttypeahead = function(typeahead, query) {
+	var dfd, that=this.contexttypeahead,
+		root = this.$element.data('rootContext');
+	if (!this.contexttypeahead.context) {
+		dfd = $.Deferred();
+		$.ajax('ajax.php/content/context', {
+			data: {root: root},
+			success: function(json) {
+				var items = $.map(json, function(v,k) {
+					return {variable: k, desc: v};
+				});
+				that.variables = json;
+				dfd.resolve(items);
+			}
+		});
+		this.contexttypeahead.context = dfd;
+	}
+	// Only fetch the context once for this redactor box
+	this.contexttypeahead.context.then(function(items) {
+	typeahead.process(items);
+	});
+};
+
+textWidthtypeahead = function(text, clone) {
+	var c = $(clone),
+		o = c.clone().text(text)
+			.css({'position': 'absolute', 'float': 'left', 'white-space': 'nowrap', 'visibility': 'hidden'})
+			.css({'font-family': c.css('font-family'), 'font-weight': c.css('font-weight'),
+			'font-size': c.css('font-size')})
+			.appendTo($('body')),
+		w = o.width();
+
+	o.remove();
+
+	return w;
+};
+
+destroytypeahead = function() {
+	if (this.contexttypeahead.typeahead) {
+		this.contexttypeahead.typeahead.typeahead('hide');
+		this.contexttypeahead.typeahead.remove();
+		this.contexttypeahead.typeahead = false;
+	}
+};
+
+selecttypeahead = function(item, event) {
+	// Collapse multiple textNodes together
+	(this.selection.getBlock() || this.$editor.get(0)).normalize();
+	var current = this.selection.getCurrent(),
+		sel     = this.selection.get(),
+		range   = this.sel.getRangeAt(0),
+		cursorAt = range.endOffset,
+		// TODO: Consume immediately following `}` symbols
+		plugin  = this.contexttypeahead,
+		search  = new RegExp(/%\{([^}]*)(\}?)$/);
+
+	// FIXME: ENTER will end up here, but current will be empty
+
+	if (!current)
+		return;
+
+	// Set cursor at the end of the expanded text
+	var left = current.textContent.substring(0, cursorAt),
+		right = current.textContent.substring(cursorAt),
+		autoExpand = event.target.nodeName == 'I',
+		selected = item.variable + (autoExpand ? '.' : '')
+		newLeft = left.replace(search, '%{' + selected + '}');
+
+	current.textContent = newLeft
+		// Drop the remaining part of a variable block, if any
+		+ right.replace(/[^%}]*?[%}]/, '');
+
+	this.range.setStart(current, newLeft.length - 1);
+	this.range.setEnd(current, newLeft.length - 1);
+	this.selection.addRange();
+	if (!autoExpand)
+		return plugin.destroy();
+
+	plugin.typeahead.val(selected);
+	plugin.typeahead.typeahead('lookup');
+	return false;
+};
+	
+//End typeahead
+
 /* Redactor richtext init */
 $(function() {
     var captureImageSizes = function(html) {
@@ -248,15 +435,24 @@ $(function() {
         tinymce.init({
             target: el,
             height: {TINYMCE_HEIGHT},
+            width: '100%',
             theme: '{TINYMCE_THEME}',
             menubar: {TINYMCE_MENUBAR},
             branding: {TINYMCE_POWERED_BY},
             plugins: '{TINYMCE_PLUGINS}',
             toolbar: '{TINYMCE_TOOLBAR}',
             {TINYMCE_AUTOSAVEOPTIONS},
-            /*content_css: [
-            '//fonts.googleapis.com/css?family=Lato:300,300i,400,400i',
-            '//www.tinymce.com/css/codepen.min.css']*/
+			init_instance_callback: function(editor){
+				editor.on('click', function(e){
+					watchtypeahead(e, this);
+				});
+				editor.on('keyup', function(e){
+					watchtypeahead(e, this);
+				});
+				editor.on('keydown', function(e){
+					watchtypeahead(e, this);
+				});
+			}
         });
     },
     findRichtextBoxes = function() {
@@ -303,4 +499,45 @@ $(document).ajaxError(function(event, request, settings) {
         $.sysAlert(__('Unable to save draft.'),
             __('Refresh the current page to restore and continue your draft.'));
     }
+});
+$('form select#cannedResp').change(function() {
+	var fObj = $(this).closest('form');
+	var cid = $(this).val();
+	var tid = $(':input[name=id]',fObj).val();
+	$(this).find('option:first').attr('selected', 'selected').parent('select');
+
+	var $url = 'ajax.php/kb/canned-response/'+cid+'.json';
+	if (tid)
+		$url =  'ajax.php/tickets/'+tid+'/canned-resp/'+cid+'.json';
+
+	$.ajax({
+			type: "GET",
+			url: $url,
+			dataType: 'json',
+			cache: false,
+			success: function(canned){
+				//Canned response.
+				var box = $('#response',fObj),
+					redactor = box.data('redactor');
+				if(canned.response) {
+					if (redactor)
+						redactor.insert.html(canned.response);
+					else
+						box.val(box.val() + canned.response);
+
+					if (redactor)
+						redactor.observe.load();
+				}
+				//Canned attachments.
+				var ca = $('.attachments', fObj);
+				if(canned.files && ca.length) {
+					var fdb = ca.find('.dropzone').data('dropbox');
+					$.each(canned.files,function(i, j) {
+					  fdb.addNode(j);
+					});
+				}
+			}
+		})
+		.done(function() { })
+		.fail(function() { });
 });

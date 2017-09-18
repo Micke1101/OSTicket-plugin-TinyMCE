@@ -20,22 +20,20 @@ class TinyMCEPlugin extends Plugin {
      */
     function bootstrap() {
         ob_start();
-        global $cfg;
         register_shutdown_function(function () {
             $html = ob_get_clean();
             $javascript = file_get_contents(__DIR__ . '/tinymce-osticket.js');
             $javascript = $this->handleConfig($javascript);
             $html = preg_replace('/<script.*redactor.*<\/script>/', '', $html);
-            print str_replace("</head>", $this->includeTinyMCE() . "<script>" 
+            print str_replace("</body>", $this->includeTinyMCE() . "<script>" 
             . $javascript 
-            . "</script></head>", $html);
+            . "</script></body>", $html);
         });
     }
     
     function includeTinyMCE(){
         return "<script type=\"text/javascript\" src=\"" 
-            . ROOT_PATH . "include/" . $this->getInstallPath() 
-            . "/tinymce/tinymce.min.js\"></script>";
+            . ROOT_PATH . "js/tinymce/tinymce.min.js\"></script>";
     }
     
     function handleConfig($html){
