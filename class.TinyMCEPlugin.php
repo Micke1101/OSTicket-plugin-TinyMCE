@@ -32,15 +32,25 @@ class TinyMCEPlugin extends Plugin {
     }
     
     function includeTinyMCE(){
-        return "<script type=\"text/javascript\" src=\"" 
-            . ROOT_PATH . "js/tinymce/tinymce.min.js\"></script>";
+        $config = $this->getConfig();
+        switch($config->get('jsfile')){
+            case 'js':
+                return "<script type=\"text/javascript\" src=\"" 
+                    . ROOT_PATH . "js/tinymce/tinymce.min.js\"></script>";
+            case 'plugin':
+                return "<script type=\"text/javascript\" src=\"" 
+                    . ROOT_PATH . "include/plugins/" . getInstallPath() . "/tinymce/tinymce.min.js\"></script>";
+            case 'cloud':
+                return "<script type=\"text/javascript\" src=\"https://cloud.tinymce.com/stable/tinymce.min.js?apiKey=" . $config->get('apikey') . "\"></script>";
+        }
+        return "";
     }
     
     function handleConfig($html){
         $config = $this->getConfig();
         $html = str_replace("{TINYMCE_HEIGHT}", $config->get('height'), $html);
         $html = str_replace("{TINYMCE_THEME}", $config->get('theme'), $html);
-        $html = str_replace("{TINYMCE_PLUGINS}", implode(' ', array_keys($config->get('plugins'))) . (($config->get('doautosave'))?" autosave":""), $html);
+        $html = str_replace("{TINYMCE_PLUGINS}", ((is_array($config->get('plugins'))) ? implode(' ', array_keys($config->get('plugins'))) : '') . (($config->get('doautosave'))?" autosave":""), $html);
         $html = str_replace("{TINYMCE_MENUBAR}", (boolval($config->get('menubar')) ? 'true':'false'), $html);
         $html = str_replace("{TINYMCE_POWERED_BY}", (boolval($config->get('poweredby')) ? 'true':'false'), $html);
         if($config->get('doautosave')){

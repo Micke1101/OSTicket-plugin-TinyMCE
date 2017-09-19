@@ -100,7 +100,25 @@ class TinyMCEPluginConfig extends PluginConfig
                 'size'=>16,
                 'validator' => 'number',
                 'hint' => $__('The default height of TinyMCE'),
-                'default' => '250'
+                'default' => 250
+            ]),
+            'jsfile' => new ChoiceField([
+                'label' => $__('TinyMCE source'),
+                'required' => true,
+                'hint' => $__('Where do you want to load TinyMCE from.'),
+                'default' => 'js',
+                'choices' => array(
+                    'js' => sprintf(__('Javascript folder (%s)'), 'js/tinymce'),
+                    'plugin' => __('Plugin folder'),
+                    'cloud' => __('Cloud hosted'),
+                )
+            ]),
+            'apikey' => new TextboxField([
+                'label' => $__('TinyMCE API Key'),
+                'required' => false,
+                'size'=>16,
+                'hint' => sprintf($__('If you\'re using cloud hosted TinyMCE you may require an API key.<br/>%sSign up for a API key%s'), '<a href="https://store.ephox.com/signup/">', '</a>'),
+                'default' => ''
             ]),
             'autosaveoptions' => new SectionBreakField([
                 'label' => $__('Autosave options'),
