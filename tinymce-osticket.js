@@ -321,6 +321,7 @@ $(function() {
         return html;
     },
     tiny = function(el, options) {
+        console.log(location.href);
         tinymce.init({
             target: el,
             height: {TINYMCE_HEIGHT},
@@ -398,4 +399,18 @@ $('form select#cannedResp').change(function() {
     })
     .done(function() { })
     .fail(function() { });
+});
+$(document).ajaxError(function(event, request, settings) {
+    /*if (settings.url.indexOf('ajax.php/draft') != -1
+        && settings.type.toUpperCase() == 'POST') {
+        $('.richtext').each(function() {
+            var redactor = $(this).data('redactor');
+            if (redactor) {
+                redactor.autosave.disable();
+                clearInterval(redactor.autosaveInterval);
+            }
+        });
+        $.sysAlert(__('Unable to save draft.'),
+        __('Refresh the current page to restore and continue your draft.'));
+    }*/
 });
