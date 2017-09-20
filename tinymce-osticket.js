@@ -321,7 +321,6 @@ $(function() {
         return html;
     },
     tiny = function(el, options) {
-        console.log(location.href);
         tinymce.init({
             target: el,
             height: {TINYMCE_HEIGHT},
@@ -330,8 +329,9 @@ $(function() {
             theme: '{TINYMCE_THEME}',
             menubar: {TINYMCE_MENUBAR},
             branding: {TINYMCE_POWERED_BY},
-            plugins: '{TINYMCE_PLUGINS} autolock signature contexttypeahead',
+            plugins: '{TINYMCE_PLUGINS}{TINYMCE_STAFF_PLUGINS}',
             toolbar: '{TINYMCE_TOOLBAR}',
+            paste_data_images: true,
             {TINYMCE_AUTOSAVEOPTIONS},
             init_instance_callback: function (editor) {
                 editor.on('blur', function (e) {
@@ -362,43 +362,46 @@ $(function() {
     $(document).on('pjax:start', cleanupTinyMCEElements);
 });
 
-$('form select#cannedResp').change(function() {
-    var fObj = $(this).closest('form');
-    var cid = $(this).val();
-    var tid = $(':input[name=id]',fObj).val();
-    $(this).find('option:first').attr('selected', 'selected').parent('select');
+$(document).ready(function() {
+    $('form select#cannedResp').change(function() {
+        var fObj = $(this).closest('form');
+        var cid = $(this).val();
+        var tid = $(':input[name=id]',fObj).val();
+        $(this).find('option:first').attr('selected', 'selected').parent('select');
 
-    var $url = 'ajax.php/kb/canned-response/'+cid+'.json';
-    if (tid)
-        $url =  'ajax.php/tickets/'+tid+'/canned-resp/'+cid+'.json';
+        var $url = 'ajax.php/kb/canned-response/'+cid+'.json';
+        if (tid)
+            $url =  'ajax.php/tickets/'+tid+'/canned-resp/'+cid+'.json';
 
-    $.ajax({
-        type: "GET",
-        url: $url,
-        dataType: 'json',
-        cache: false,
-        success: function(canned){
-            //Canned response.
-            var box = $('#response',fObj),
-                tmce = tinymce.get('response');
-            if(canned.response) {
-                if (tmce)
-                    tmce.setContent(tmce.getContent() + canned.response);
-                else
-                    box.val(box.val() + canned.response);
+        $.ajax({
+            type: "GET",
+            url: $url,
+            dataType: 'json',
+            cache: false,
+            success: function(canned){
+                //Canned response.
+                var box = $('#response',fObj),
+                    tmce = tinymce.get('response');
+                if(canned.response) {
+                    if (tmce){
+                        tmce.setContent(tmce.getContent() + canned.response);
+                    }
+                    else
+                        box.val(box.val() + canned.response);
+                }
+                //Canned attachments.
+                var ca = $('.attachments', fObj);
+                if(canned.files && ca.length) {
+                    var fdb = ca.find('.dropzone').data('dropbox');
+                    $.each(canned.files,function(i, j) {
+                      fdb.addNode(j);
+                    });
+                }
             }
-            //Canned attachments.
-            var ca = $('.attachments', fObj);
-            if(canned.files && ca.length) {
-                var fdb = ca.find('.dropzone').data('dropbox');
-                $.each(canned.files,function(i, j) {
-                  fdb.addNode(j);
-                });
-            }
-        }
-    })
-    .done(function() { })
-    .fail(function() { });
+        })
+        .done(function() { })
+        .fail(function() { });
+    });
 });
 $(document).ajaxError(function(event, request, settings) {
     /*if (settings.url.indexOf('ajax.php/draft') != -1
