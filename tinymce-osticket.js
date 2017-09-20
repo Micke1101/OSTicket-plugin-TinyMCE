@@ -136,8 +136,6 @@ tinymce.PluginManager.add('contexttypeahead', function(editor, url) {
             backText    = match[1],
             parent      = sel.getNode().parentElement || this.editor,
             plugin      = this;
-        console.log(position);
-        console.log(editorPosition);
 
         // Insert a hidden text input to receive the typed text and add a
         // typeahead widget
