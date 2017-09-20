@@ -109,8 +109,7 @@ tinymce.PluginManager.add('contexttypeahead', function(editor, url) {
         variables = false;
     
     function watch(e) {
-        var current = editor.selection.getContent(),
-            allText = editor.getContent({format : 'text'}),
+        var allText = editor.selection.getRng().commonAncestorContainer.data,
             offset = editor.selection.getRng().endOffset,
             lhs = (allText) ? allText.substring(0, offset) : '',
             search = new RegExp(/%\{([^}]*)$/),
@@ -131,12 +130,14 @@ tinymce.PluginManager.add('contexttypeahead', function(editor, url) {
         // to the `%{` symbols
         var sel         = editor.selection,
             range       = sel.getRng(),
-            content     = current.textContent,
-            clientRects = sel.getNode().getClientRects(),
+            clientRects = range.getClientRects(),
             position    = clientRects[0],
+            editorPosition = editor.contentWindow.frameElement.getClientRects()[0],
             backText    = match[1],
             parent      = sel.getNode().parentElement || this.editor,
             plugin      = this;
+        console.log(position);
+        console.log(editorPosition);
 
         // Insert a hidden text input to receive the typed text and add a
         // typeahead widget
@@ -190,14 +191,14 @@ tinymce.PluginManager.add('contexttypeahead', function(editor, url) {
                 editor.selection.getNode().parentElement || $('<div class="redactor-editor">')
             ),
             pleft = $(parent).offset().left,
-            left = position.left - width;
+            left = editorPosition.left + position.left - width;
 
             if (left < pleft)
                 // This is a bug in chrome, but I'm not sure how to adjust it
                 left += pleft;
 
             plugin.typeahead
-                .css({top: position.top + $(window).scrollTop(), left: left});
+                .css({top: editorPosition.top + position.top + $(window).scrollTop(), left: left});
         }
 
         plugin.typeahead
@@ -226,7 +227,6 @@ tinymce.PluginManager.add('contexttypeahead', function(editor, url) {
         }
         // Only fetch the context once for this redactor box
         this.context.then(function(items) {
-            console.log(items);
             typeahead.process(items);
         });
     }
@@ -256,10 +256,9 @@ tinymce.PluginManager.add('contexttypeahead', function(editor, url) {
     function select(item, event) {
         // Collapse multiple textNodes together
         (editor.getDoc().body).normalize();
-        var current = this.selection.getCurrent(),
-            sel     = this.selection.get(),
-            range   = this.sel.getRangeAt(0),
-            cursorAt = range.endOffset,
+        var current = editor.selection.getRng().commonAncestorContainer,
+            range   = editor.selection.getRng(),
+            cursorAt = editor.selection.getRng().endOffset,
             // TODO: Consume immediately following `}` symbols
             plugin  = this,
             search  = new RegExp(/%\{([^}]*)(\}?)$/);
@@ -280,14 +279,13 @@ tinymce.PluginManager.add('contexttypeahead', function(editor, url) {
             // Drop the remaining part of a variable block, if any
             + right.replace(/[^%}]*?[%}]/, '');
 
-        this.range.setStart(current, newLeft.length - 1);
-        this.range.setEnd(current, newLeft.length - 1);
-        this.selection.addRange();
+        range.setStart(current, newLeft.length - 1);
+        range.setEnd(current, newLeft.length - 1);
         if (!autoExpand)
-            return plugin.destroy();
+            return destroy();
 
-        plugin.typeahead.val(selected);
-        plugin.typeahead.typeahead('lookup');
+        this.typeahead.val(selected);
+        this.typeahead.typeahead('lookup');
         return false;
     }
         
@@ -333,7 +331,7 @@ $(function() {
             theme: '{TINYMCE_THEME}',
             menubar: {TINYMCE_MENUBAR},
             branding: {TINYMCE_POWERED_BY},
-            plugins: '{TINYMCE_PLUGINS} autolock signature',
+            plugins: '{TINYMCE_PLUGINS} autolock signature contexttypeahead',
             toolbar: '{TINYMCE_TOOLBAR}',
             {TINYMCE_AUTOSAVEOPTIONS},
             init_instance_callback: function (editor) {
