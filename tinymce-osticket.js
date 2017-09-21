@@ -329,7 +329,7 @@ $(function() {
             theme: '{TINYMCE_THEME}',
             menubar: {TINYMCE_MENUBAR},
             branding: {TINYMCE_POWERED_BY},
-            plugins: '{TINYMCE_PLUGINS}{TINYMCE_STAFF_PLUGINS}',
+            plugins: '{TINYMCE_PLUGINS}{TINYMCE_STAFF_PLUGINS} directionality',
             toolbar: '{TINYMCE_TOOLBAR}',
             paste_data_images: true,
             {TINYMCE_AUTOSAVEOPTIONS},
