@@ -49,12 +49,19 @@ class TinyMCEPlugin extends Plugin {
     function handleConfig($html){
         global $thisstaff;
         $config = $this->getConfig();
+        $lang = Internationalization::getCurrentLanguage();
+        $info = Internationalization::getLanguageInfo($lang);
+        $direction = 'ltr';
+        if($info['direction'] == 'rtl')
+            $direction = 'rtl';
+        $info['direction'] == 'rtl';
         $html = str_replace("{TINYMCE_HEIGHT}", $config->get('height'), $html);
         $html = str_replace("{TINYMCE_THEME}", $config->get('theme'), $html);
         $html = str_replace("{TINYMCE_PLUGINS}", ((is_array($config->get('plugins'))) ? implode(' ', array_keys($config->get('plugins'))) : '') . (($config->get('doautosave'))?" autosave":""), $html);
         $html = str_replace("{TINYMCE_MENUBAR}", (boolval($config->get('menubar')) ? 'true':'false'), $html);
         $html = str_replace("{TINYMCE_POWERED_BY}", (boolval($config->get('poweredby')) ? 'true':'false'), $html);
         $html = str_replace("{TINYMCE_STAFF_PLUGINS}", ($thisstaff ? ' autolock signature contexttypeahead':''), $html);
+        $html = str_replace("{TINYMCE_DIRECTIONALITY}", $direction, $html);
         if($config->get('doautosave')){
             $html = str_replace("{TINYMCE_AUTOSAVEOPTIONS}", "autosave_interval: \"" 
                 . $config->get('autosaveinterval') . "s\",autosave_restore_when_empty: " 
