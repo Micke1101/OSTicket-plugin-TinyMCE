@@ -1,3 +1,30 @@
+tinymce.PluginManager.add('embedvideo', function(editor, url) {
+    var reUrlYoutube = /https?:\/\/(?:[0-9A-Z-]+\.)?(?:youtu\.be\/|youtube\.com\S*[^\w\-\s])([\w\-]{11})(?=[^\w\-]|$)(?![?=&+%\w.-]*(?:['"][^<>]*>|<\/a>))[?=&+%\w.-]*/ig,
+    reUrlVimeo = /https?:\/\/(www\.)?vimeo.com\/(\d+)($|\/)/;
+    editor.on('PastePreProcess', function(e){
+        var iframeStart = '<iframe src="',
+            iframeEnd = '" frameborder="0" allowfullscreen></iframe>';
+
+        if (e.content.match(reUrlYoutube))
+        {
+            e.content = e.content.replace(reUrlYoutube, iframeStart + '//www.youtube.com/embed/$1' + iframeEnd);
+        }
+        else if (e.content.match(reUrlVimeo))
+        {
+            e.content = e.content.replace(reUrlVimeo, iframeStart + '//player.vimeo.com/video/$2' + iframeEnd);
+        }
+    });
+    
+    return {
+        getMetadata: function () {
+            return  {
+                name: "osTicket embed video",
+                url: "https://github.com/Micke1101/OSTicket-plugin-TinyMCE"
+            };
+        }
+    };
+});
+
 tinymce.PluginManager.add('autolock', function(editor, url) {
     var code = $(editor.getElement().closest('form')).find('[name=lockCode]');
     if(code.length)
@@ -329,7 +356,7 @@ $(function() {
             theme: '{TINYMCE_THEME}',
             menubar: {TINYMCE_MENUBAR},
             branding: {TINYMCE_POWERED_BY},
-            plugins: '{TINYMCE_PLUGINS}{TINYMCE_STAFF_PLUGINS}',
+            plugins: '{TINYMCE_PLUGINS}{TINYMCE_STAFF_PLUGINS} embedvideo',
             toolbar: '{TINYMCE_TOOLBAR}',
             language: '{TINYMCE_LANGUAGE}',
             paste_data_images: true,
