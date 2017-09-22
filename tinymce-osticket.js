@@ -331,7 +331,7 @@ $(function() {
             branding: {TINYMCE_POWERED_BY},
             plugins: '{TINYMCE_PLUGINS}{TINYMCE_STAFF_PLUGINS}',
             toolbar: '{TINYMCE_TOOLBAR}',
-            language: 'sv_SE',
+            language: '{TINYMCE_LANGUAGE}',
             paste_data_images: true,
             {TINYMCE_AUTOSAVEOPTIONS},
             init_instance_callback: function (editor) {

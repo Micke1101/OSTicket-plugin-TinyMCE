@@ -37,9 +37,6 @@ class TinyMCEPlugin extends Plugin {
             case 'js':
                 return "<script type=\"text/javascript\" src=\"" 
                     . ROOT_PATH . "js/tinymce/tinymce.min.js\"></script>";
-            case 'plugin':
-                return "<script type=\"text/javascript\" src=\"" 
-                    . ROOT_PATH . "include/plugins/" . $this->getInstallPath() . "/tinymce/tinymce.min.js\"></script>";
             case 'cloud':
                 return "<script type=\"text/javascript\" src=\"https://cloud.tinymce.com/stable/tinymce.min.js?apiKey=" . $config->get('apikey') . "\"></script>";
         }
@@ -56,7 +53,6 @@ class TinyMCEPlugin extends Plugin {
         $html = str_replace("{TINYMCE_MENUBAR}", (boolval($config->get('menubar')) ? 'true':'false'), $html);
         $html = str_replace("{TINYMCE_POWERED_BY}", (boolval($config->get('poweredby')) ? 'true':'false'), $html);
         $html = str_replace("{TINYMCE_STAFF_PLUGINS}", ($thisstaff ? ' autolock signature contexttypeahead':''), $html);
-        //$html = str_replace("{TINYMCE_DIRECTIONALITY}", $direction, $html);
         $html = str_replace("{TINYMCE_LANGUAGE}", $lang, $html);
         if($config->get('doautosave')){
             $html = str_replace("{TINYMCE_AUTOSAVEOPTIONS}", "autosave_interval: \"" 

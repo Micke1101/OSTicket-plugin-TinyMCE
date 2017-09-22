@@ -172,7 +172,6 @@ class TinyMCEPluginConfig extends PluginConfig
                 'default' => 'js',
                 'choices' => array(
                     'js' => sprintf(__('Javascript folder (%s)'), 'js/tinymce'),
-                    'plugin' => __('Plugin folder'),
                     'cloud' => __('Cloud hosted'),
                 )
             ]),
