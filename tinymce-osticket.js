@@ -326,12 +326,12 @@ $(function() {
             height: {TINYMCE_HEIGHT},
             width: '100%',
             statusbar: false,
-            directionality: '{TINYMCE_DIRECTIONALITY}',
             theme: '{TINYMCE_THEME}',
             menubar: {TINYMCE_MENUBAR},
             branding: {TINYMCE_POWERED_BY},
             plugins: '{TINYMCE_PLUGINS}{TINYMCE_STAFF_PLUGINS}',
             toolbar: '{TINYMCE_TOOLBAR}',
+            language: 'sv_SE',
             paste_data_images: true,
             {TINYMCE_AUTOSAVEOPTIONS},
             init_instance_callback: function (editor) {

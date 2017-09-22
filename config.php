@@ -31,6 +31,17 @@ class TinyMCEPluginConfig extends PluginConfig
     function getOptions()
     {
         list ($__, $_N) = self::translate();
+        $themes = array();
+        $directory = $_SERVER[DOCUMENT_ROOT] . ROOT_PATH . "js/tinymce/";
+        if(!scandir($directory))
+            $directory = dirname(__FILE__) . "/tinymce/";
+        if(($themesfound = scandir($directory . "themes")))
+            foreach(preg_grep('/^([^.])/', $themesfound) as $theme)
+                $themes[$theme] = $theme;
+        $skins = array();
+        if(($skinsfound = scandir($directory . "skins")))
+            foreach(preg_grep('/^([^.])/', $skinsfound) as $skin)
+                $skins[$skin] = $skin;
         return array(
             'mainoptions' => new SectionBreakField([
                 'label' => $__('Main options'),
@@ -65,15 +76,18 @@ class TinyMCEPluginConfig extends PluginConfig
                 ),
                 'configuration'=>array('multiselect'=>true,'prompt'=>__('Plugins')),
                 'choices' => array(
-                    'Free Plugins' => array(
+                    __('Free Plugins') => array(
                         'advlist' => __('Advanced list'),
                         'anchor' => __('Anchor'),
                         'autolink' => __('Autolink'),
+                        'autoresize' => __('Auto resize'),
+                        'bbcode' => __('Enable bbcode'),
                         'charmap' => __('Unicode characters'),
                         'code' => __('Edit HTML'),
                         'codesample' => __('Insert code samples'),
                         'colorpicker' => __('Color picker'),
                         'contextmenu' => __('Context menu'),
+                        'emoticons' => __('Emoticons'),
                         'fullpage' => __('Edit document properties'),
                         'fullscreen' => __('Fullscreen'),
                         'help' => __('Help'),
@@ -81,6 +95,7 @@ class TinyMCEPluginConfig extends PluginConfig
                         'image' => __('Images'),
                         'imagetools' => __('Image editing'),
                         'insertdatetime' => __('Date and time'),
+                        'legacyoutput' => __('Legacy output'),
                         'link' => __('Links'),
                         'lists' => __('Normalize lists'),
                         'media' => __('HTML5 Media'),
@@ -90,6 +105,7 @@ class TinyMCEPluginConfig extends PluginConfig
                         'preview' => __('Preview'),
                         'print' => __('Print'),
                         'searchreplace' => __('Search and Replace'),
+                        'tabfocus' => __('Tab focus'),
                         'table' => __('Table'),
                         'textcolor' => __('Text color'),
                         'textpattern' => __('Textpatterns'),
@@ -97,7 +113,7 @@ class TinyMCEPluginConfig extends PluginConfig
                         'visualchars' => __('Make invisible characters visible'),
                         'wordcount' => __('Word count'),
                     ),
-                    'Fee based plugins' => array(
+                    __('Fee based plugins') => array(
                         'a11ychecker' => __('Accessibility checker'),
                         'advcode' => __('Powerful HTML editor'),
                         'linkchecker' => __('Test links'),
@@ -105,7 +121,7 @@ class TinyMCEPluginConfig extends PluginConfig
                         'powerpaste' => __('Automaticly cleanup office content'),
                         'tinymcespellchecker' => __('Spell checker'),
                         'toc' => __('Table of Contents'),
-                    )
+                    ),
                 )
             ]),
             'toolbar' => new TextboxField([
@@ -120,9 +136,14 @@ class TinyMCEPluginConfig extends PluginConfig
                 'required' => true,
                 'hint' => $__('What theme do you want to use.'),
                 'default' => 'modern',
-                'choices' => array(
-                    'modern' => __('Modern'),
-                )
+                'choices' => $themes
+            ]),
+            'skin' => new ChoiceField([
+                'label' => $__('Skin'),
+                'required' => true,
+                'hint' => $__('What skin do you want to use.'),
+                'default' => 'lightgray',
+                'choices' => $skins
             ]),
             'menubar' => new BooleanField([
                 'label' => $__('Show menubar'),

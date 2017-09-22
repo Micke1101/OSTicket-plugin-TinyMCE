@@ -39,7 +39,7 @@ class TinyMCEPlugin extends Plugin {
                     . ROOT_PATH . "js/tinymce/tinymce.min.js\"></script>";
             case 'plugin':
                 return "<script type=\"text/javascript\" src=\"" 
-                    . ROOT_PATH . "include/plugins/" . getInstallPath() . "/tinymce/tinymce.min.js\"></script>";
+                    . ROOT_PATH . "include/plugins/" . $this->getInstallPath() . "/tinymce/tinymce.min.js\"></script>";
             case 'cloud':
                 return "<script type=\"text/javascript\" src=\"https://cloud.tinymce.com/stable/tinymce.min.js?apiKey=" . $config->get('apikey') . "\"></script>";
         }
@@ -50,18 +50,14 @@ class TinyMCEPlugin extends Plugin {
         global $thisstaff;
         $config = $this->getConfig();
         $lang = Internationalization::getCurrentLanguage();
-        $info = Internationalization::getLanguageInfo($lang);
-        $direction = 'ltr';
-        if($info['direction'] == 'rtl')
-            $direction = 'rtl';
-        $info['direction'] == 'rtl';
         $html = str_replace("{TINYMCE_HEIGHT}", $config->get('height'), $html);
         $html = str_replace("{TINYMCE_THEME}", $config->get('theme'), $html);
         $html = str_replace("{TINYMCE_PLUGINS}", ((is_array($config->get('plugins'))) ? implode(' ', array_keys($config->get('plugins'))) : '') . (($config->get('doautosave'))?" autosave":""), $html);
         $html = str_replace("{TINYMCE_MENUBAR}", (boolval($config->get('menubar')) ? 'true':'false'), $html);
         $html = str_replace("{TINYMCE_POWERED_BY}", (boolval($config->get('poweredby')) ? 'true':'false'), $html);
         $html = str_replace("{TINYMCE_STAFF_PLUGINS}", ($thisstaff ? ' autolock signature contexttypeahead':''), $html);
-        $html = str_replace("{TINYMCE_DIRECTIONALITY}", $direction, $html);
+        //$html = str_replace("{TINYMCE_DIRECTIONALITY}", $direction, $html);
+        $html = str_replace("{TINYMCE_LANGUAGE}", $lang, $html);
         if($config->get('doautosave')){
             $html = str_replace("{TINYMCE_AUTOSAVEOPTIONS}", "autosave_interval: \"" 
                 . $config->get('autosaveinterval') . "s\",autosave_restore_when_empty: " 
