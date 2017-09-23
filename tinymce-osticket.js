@@ -187,15 +187,13 @@ tinymce.PluginManager.add('contexttypeahead', function(editor, url) {
         var allText = editor.selection.getRng().commonAncestorContainer.data,
             offset = editor.selection.getRng().endOffset,
             lhs = (allText) ? allText.substring(0, offset) : '',
-            templatesearch = new RegExp(/%\{([^}]*)$/),
-            templatematch,
-            staffsearch = new RegExp(/@((\s|\w|\.)*)$/),
-            staffmatch;
+            search = new RegExp(/%\{([^}]*)$/),
+            match;
 
         if (!lhs) {
             return !e.isDefaultPrevented();
         }
-        if (e.which == 27 || !(templatematch = templatesearch.exec(lhs)) && !(staffmatch = staffsearch.exec(lhs))){
+        if (e.which == 27 || !(match = search.exec(lhs))){
             // No longer in a element — close typeahead
             return destroy();
         }
@@ -210,7 +208,7 @@ tinymce.PluginManager.add('contexttypeahead', function(editor, url) {
             clientRects = range.getClientRects(),
             position    = clientRects[0],
             editorPosition = editor.contentWindow.frameElement.getClientRects()[0],
-            backText    = ((templatematch) ? templatematch[1] : staffmatch[1]),
+            backText    = match[1],
             parent      = sel.getNode().parentElement || this.editor,
             plugin      = this;
 
@@ -252,7 +250,7 @@ tinymce.PluginManager.add('contexttypeahead', function(editor, url) {
                             return false;
                         return (this.query.match(/\./g) || []).length == (item.match(/\./g) || []).length;
                     },
-                    onselect: ((staffmatch) ? selectstaff.bind(this) : select.bind(this)),
+                    onselect: select.bind(this),
                     scroll: true,
                     items: 100
                 });
@@ -283,7 +281,7 @@ tinymce.PluginManager.add('contexttypeahead', function(editor, url) {
 
     function getContext(typeahead, query) {
         var dfd, that=this,
-            root = editor.getElement().dataset.rootContext;//'ticket.activity.notice';
+            root = editor.getElement().dataset.rootContext;
         if (!this.context) {
             dfd = $.Deferred();
             $.ajax('ajax.php/content/context', {
@@ -361,8 +359,175 @@ tinymce.PluginManager.add('contexttypeahead', function(editor, url) {
         this.typeahead.typeahead('lookup');
         return false;
     }
+        
+    editor.on('click', function(e){
+        watch(e);
+    });
+    editor.on('keyup', function(e){
+        watch(e);
+    });
+    editor.on('keydown', function(e){
+        watch(e);
+    });
+
+    return {
+        getMetadata: function () {
+            return  {
+                name: "osTicket context typeahead",
+                url: "https://github.com/Micke1101/OSTicket-plugin-TinyMCE"
+            };
+        }
+    };
+});
+
+tinymce.PluginManager.add('mentiontypeahead', function(editor, url) {
+    // Add a button that opens a window
+    var typeahead = false,
+        context = false,
+        variables = false;
     
-    function selectstaff(item, event) {
+    function watch(e) {
+        var allText = editor.selection.getRng().commonAncestorContainer.data,
+            offset = editor.selection.getRng().endOffset,
+            lhs = (allText) ? allText.substring(0, offset) : '',
+            search = new RegExp(/@((\s|\w|\.)*)$/),
+            match;
+
+        if (!lhs) {
+            return !e.isDefaultPrevented();
+        }
+        if (e.which == 27 || !(match = search.exec(lhs))){
+            // No longer in a element — close typeahead
+            return destroy();
+        }
+
+        if (e.type == 'click')
+            return;
+
+        // Locate the position of the cursor and the number of characters back
+        // to the `%{` symbols
+        var sel         = editor.selection,
+            range       = sel.getRng(),
+            clientRects = range.getClientRects(),
+            position    = clientRects[0],
+            editorPosition = editor.contentWindow.frameElement.getClientRects()[0],
+            backText    = match[1],
+            parent      = sel.getNode().parentElement || this.editor,
+            plugin      = this;
+
+        // Insert a hidden text input to receive the typed text and add a
+        // typeahead widget
+        if (!this.typeahead) {
+            this.typeahead = $('<input type="text">')
+                .css({position: 'absolute', visibility: 'hidden'})
+                .width(0).height(position.height - 4)
+                .appendTo(document.body)
+                .typeahead({
+                    property: 'variable',
+                    minLength: 0,
+                    arrow: $('<span class="pull-right"><i class="icon-muted icon-chevron-right"></i></span>')
+                    .css('padding', '0 0 0 6px'),
+                    highlighter: function(variable, item) {
+                        var base = $.fn.typeahead.Constructor.prototype.highlighter
+                            .call(this, variable),
+                            further = new RegExp(variable + '\\.'),
+                            extendable = Object.keys(plugin.variables).some(function(v) {
+                                return v.match(further);
+                            }),
+                            arrow = extendable ? this.options.arrow.clone() : '';
+                        return $('<div/>').html(base).prepend(arrow).html()
+                            + $('<span class="faded">')
+                            .text(' — ' + item.desc)
+                            .wrap('<div>').parent().html();
+                    },
+                    item: '<li><a href="#" style="display:block"></a></li>',
+                    source: getContext.bind(this),
+                    sorter: function(items) {
+                        items.sort(
+                            function(a,b) {return a.variable > b.variable ? 1 : -1;}
+                        );
+                        return items;
+                    },
+                    matcher: function(item) {
+                        if (item.toLowerCase().indexOf(this.query.toLowerCase()) !== 0)
+                            return false;
+                        return (this.query.match(/\./g) || []).length == (item.match(/\./g) || []).length;
+                    },
+                    onselect: select.bind(this),
+                    scroll: true,
+                    items: 100
+                });
+        }
+
+        if (position) {
+            var width = textWidth(
+                backText,
+                editor.selection.getNode().parentElement || $('<div class="redactor-editor">')
+            ),
+            pleft = $(parent).offset().left,
+            left = editorPosition.left + position.left - width;
+
+            if (left < pleft)
+                // This is a bug in chrome, but I'm not sure how to adjust it
+                left += pleft;
+
+            plugin.typeahead
+                .css({top: editorPosition.top + position.top + $(window).scrollTop(), left: left});
+        }
+
+        plugin.typeahead
+            .val(backText)
+            .trigger(e);
+
+        return !e.isDefaultPrevented();
+    }
+
+    function getContext(typeahead, query) {
+        var dfd, that=this,
+            root = editor.getElement().dataset.rootContext;
+        if (!this.context) {
+            dfd = $.Deferred();
+            $.ajax('ajax.php/content/context', {
+                data: {root: root},
+                success: function(json) {
+                    var items = $.map(json, function(v,k) {
+                        return {variable: k, desc: v};
+                    });
+                    that.variables = json;
+                    dfd.resolve(items);
+                }
+            });
+            this.context = dfd;
+        }
+        // Only fetch the context once for this redactor box
+        this.context.then(function(items) {
+            typeahead.process(items);
+        });
+    }
+
+    function textWidth(text, clone) {
+        var c = $(clone),
+            o = c.clone().text(text)
+            .css({'position': 'absolute', 'float': 'left', 'white-space': 'nowrap', 'visibility': 'hidden'})
+            .css({'font-family': c.css('font-family'), 'font-weight': c.css('font-weight'),
+            'font-size': c.css('font-size')})
+            .appendTo($('body')),
+            w = o.width();
+
+        o.remove();
+
+        return w;
+    }
+
+    function destroy() {
+        if (this.typeahead) {
+            this.typeahead.typeahead('hide');
+            this.typeahead.remove();
+            this.typeahead = false;
+        }
+    }
+    
+    function select(item, event) {
         // Collapse multiple textNodes together
         (editor.getDoc().body).normalize();
         var current = editor.selection.getRng().commonAncestorContainer,
@@ -382,12 +547,13 @@ tinymce.PluginManager.add('contexttypeahead', function(editor, url) {
             right = current.textContent.substring(cursorAt),
             autoExpand = event.target.nodeName == 'I',
             selected = item.variable + (autoExpand ? '.' : '')
-            newLeft = left.replace(search, '@' + selected + '');
+            newLeft = left.replace(search, '@' + selected + ';');
 
         current.textContent = newLeft;
+        editor.selection.getNode().innerHTML = editor.selection.getNode().innerHTML.replace('@' + selected + ';', '<a href="#" class="staff" data-id="' + selected + '">@' + selected + '</a>');
 
-        range.setStart(current, newLeft.length);
-        range.setEnd(current, newLeft.length);
+        range.setStart(current, newLeft.length - 1);
+        range.setEnd(current, newLeft.length - 1);
         if (!autoExpand)
             return destroy();
 
