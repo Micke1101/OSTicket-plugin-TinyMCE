@@ -6,6 +6,31 @@ $.Redactor = new Array();
 $.Redactor.opts = new Array();
 $.Redactor.opts.langs = new Array();
 
+tinymce.PluginManager.add('closeextras', function(editor, url) {
+    editor.on('init', function(e){
+        editor.notificationManager.open=(function(){
+            var original = editor.notificationManager.open;
+            return function() {
+                if(!$(editor.editorContainer).is(':visible'))
+                    return function() {
+                        // Events not supported.
+                        return undefined;
+                    };
+                return original.apply(this,arguments);
+            };
+        })();
+    });
+    
+    return {
+        getMetadata: function () {
+            return  {
+                name: "osTicket prevent extra notifications",
+                url: "https://github.com/Micke1101/OSTicket-plugin-TinyMCE"
+            };
+        }
+    };
+});
+
 tinymce.PluginManager.add('focus', function(editor, url) {
     editor.on('init', function(e){
         editor.focus();
@@ -414,7 +439,7 @@ $(function() {
             skin: '{TINYMCE_SKIN}',
             menubar: {TINYMCE_MENUBAR},
             branding: {TINYMCE_POWERED_BY},
-            plugins: '{TINYMCE_PLUGINS}{TINYMCE_STAFF_PLUGINS} embedvideo',
+            plugins: '{TINYMCE_PLUGINS}{TINYMCE_STAFF_PLUGINS} embedvideo closeextras',
             toolbar: '{TINYMCE_TOOLBAR}',
             {TINYMCE_LANGUAGE}
             paste_data_images: true,
