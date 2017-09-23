@@ -25,9 +25,9 @@ class TinyMCEPlugin extends Plugin {
             $javascript = file_get_contents(__DIR__ . '/tinymce-osticket.js');
             $javascript = $this->handleConfig($javascript);
             $html = preg_replace('/<script.*redactor.*<\/script>/', '', $html);
-            print str_replace("</head>", $this->includeTinyMCE() . "<script>" 
+            print str_replace("</body>", $this->includeTinyMCE() . "<script>" 
             . $javascript 
-            . "</script></head>", $html);
+            . "</script></body>", $html);
         });
     }
     
@@ -49,6 +49,7 @@ class TinyMCEPlugin extends Plugin {
         $lang = Internationalization::getCurrentLanguage();
         $html = str_replace("{TINYMCE_HEIGHT}", $config->get('height'), $html);
         $html = str_replace("{TINYMCE_THEME}", $config->get('theme'), $html);
+        $html = str_replace("{TINYMCE_SKIN}", $config->get('skin'), $html);
         $html = str_replace("{TINYMCE_PLUGINS}", ((is_array($config->get('plugins'))) ? implode(' ', array_keys($config->get('plugins'))) : '') . (($config->get('doautosave'))?" autosave":""), $html);
         $html = str_replace("{TINYMCE_MENUBAR}", (boolval($config->get('menubar')) ? 'true':'false'), $html);
         $html = str_replace("{TINYMCE_POWERED_BY}", (boolval($config->get('poweredby')) ? 'true':'false'), $html);

@@ -126,7 +126,7 @@ class TinyMCEPluginConfig extends PluginConfig
                 'label' => $__('Toolbar'),
                 'required' => false,
                 'configuration'=>array('size'=>50,'length'=>1024),
-                'hint' => sprintf($__('How do you want your toolbar to look like, %s'), '<a href="https://www.tinymce.com/docs/configure/editor-appearance/#toolbar">TinyMCE</a>'),
+                'hint' => sprintf($__('How do you want your toolbar to look like, %s'), '<a href="https://www.tinymce.com/docs/configure/editor-appearance/#toolbar">Toolbar</a>'),
                 'default' => 'insert | undo redo |  styleselect | bold italic backcolor  | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help'
             ]),
             'theme' => new ChoiceField([
@@ -139,7 +139,7 @@ class TinyMCEPluginConfig extends PluginConfig
             'skin' => new ChoiceField([
                 'label' => $__('Skin'),
                 'required' => true,
-                'hint' => $__('What skin do you want to use.'),
+                'hint' => sprintf($__('What skin do you want to use. %s'), '<a href="http://skin.tinymce.com/">Skin creator</a>'),
                 'default' => 'lightgray',
                 'choices' => $skins
             ]),

@@ -6,7 +6,6 @@ $.Redactor = new Array();
 $.Redactor.opts = new Array();
 $.Redactor.opts.langs = new Array();
 
-
 tinymce.PluginManager.add('focus', function(editor, url) {
     editor.on('init', function(e){
         editor.focus();
@@ -412,6 +411,7 @@ $(function() {
             width: '100%',
             statusbar: false,
             theme: '{TINYMCE_THEME}',
+            skin: '{TINYMCE_SKIN}',
             menubar: {TINYMCE_MENUBAR},
             branding: {TINYMCE_POWERED_BY},
             plugins: '{TINYMCE_PLUGINS}{TINYMCE_STAFF_PLUGINS} embedvideo',
