@@ -1,3 +1,20 @@
+var thread = thread || {}; thread.scrollTo = function () { return ;};
+
+tinymce.PluginManager.add('focus', function(editor, url) {
+    editor.on('init', function(e){
+        editor.focus();
+    });
+    
+    return {
+        getMetadata: function () {
+            return  {
+                name: "osTicket focus",
+                url: "https://github.com/Micke1101/OSTicket-plugin-TinyMCE"
+            };
+        }
+    };
+});
+
 tinymce.PluginManager.add('embedvideo', function(editor, url) {
     var reUrlYoutube = /https?:\/\/(?:[0-9A-Z-]+\.)?(?:youtu\.be\/|youtube\.com\S*[^\w\-\s])([\w\-]{11})(?=[^\w\-]|$)(?![?=&+%\w.-]*(?:['"][^<>]*>|<\/a>))[?=&+%\w.-]*/ig,
     reUrlVimeo = /https?:\/\/(www\.)?vimeo.com\/(\d+)($|\/)/;
@@ -139,16 +156,16 @@ tinymce.PluginManager.add('contexttypeahead', function(editor, url) {
         var allText = editor.selection.getRng().commonAncestorContainer.data,
             offset = editor.selection.getRng().endOffset,
             lhs = (allText) ? allText.substring(0, offset) : '',
-            search = new RegExp(/%\{([^}]*)$/),
-            match;
+            templatesearch = new RegExp(/%\{([^}]*)$/),
+            templatematch;
 
         if (!lhs) {
             return !e.isDefaultPrevented();
         }
-
-        if (e.which == 27 || !(match = search.exec(lhs)))
+        if (e.which == 27 || !(templatematch = templatesearch.exec(lhs))){
             // No longer in a element — close typeahead
             return destroy();
+        }
 
         if (e.type == 'click')
             return;
@@ -160,7 +177,7 @@ tinymce.PluginManager.add('contexttypeahead', function(editor, url) {
             clientRects = range.getClientRects(),
             position    = clientRects[0],
             editorPosition = editor.contentWindow.frameElement.getClientRects()[0],
-            backText    = match[1],
+            backText    = templatematch[1],
             parent      = sel.getNode().parentElement || this.editor,
             plugin      = this;
 
@@ -184,7 +201,6 @@ tinymce.PluginManager.add('contexttypeahead', function(editor, url) {
                                 return v.match(further);
                             }),
                             arrow = extendable ? this.options.arrow.clone() : '';
-
                         return $('<div/>').html(base).prepend(arrow).html()
                             + $('<span class="faded">')
                             .text(' — ' + item.desc)
@@ -201,7 +217,6 @@ tinymce.PluginManager.add('contexttypeahead', function(editor, url) {
                     matcher: function(item) {
                         if (item.toLowerCase().indexOf(this.query.toLowerCase()) !== 0)
                             return false;
-
                         return (this.query.match(/\./g) || []).length == (item.match(/\./g) || []).length;
                     },
                     onselect: select.bind(this),
@@ -227,7 +242,7 @@ tinymce.PluginManager.add('contexttypeahead', function(editor, url) {
         }
 
         plugin.typeahead
-            .val(match[1])
+            .val(backText)
             .trigger(e);
 
         return !e.isDefaultPrevented();
@@ -358,7 +373,7 @@ $(function() {
             branding: {TINYMCE_POWERED_BY},
             plugins: '{TINYMCE_PLUGINS}{TINYMCE_STAFF_PLUGINS} embedvideo',
             toolbar: '{TINYMCE_TOOLBAR}',
-            language: '{TINYMCE_LANGUAGE}',
+            {TINYMCE_LANGUAGE}
             paste_data_images: true,
             {TINYMCE_AUTOSAVEOPTIONS},
             init_instance_callback: function (editor) {

@@ -33,8 +33,6 @@ class TinyMCEPluginConfig extends PluginConfig
         list ($__, $_N) = self::translate();
         $themes = array();
         $directory = $_SERVER[DOCUMENT_ROOT] . ROOT_PATH . "js/tinymce/";
-        if(!scandir($directory))
-            $directory = dirname(__FILE__) . "/tinymce/";
         if(($themesfound = scandir($directory . "themes")))
             foreach(preg_grep('/^([^.])/', $themesfound) as $theme)
                 $themes[$theme] = $theme;
@@ -164,6 +162,12 @@ class TinyMCEPluginConfig extends PluginConfig
                 'validator' => 'number',
                 'hint' => $__('The default height of TinyMCE'),
                 'default' => 250
+            ]),
+            'focus' => new BooleanField([
+                'label' => $__('Autofocus'),
+                'required' => false,
+                'hint' => $__('When viewing tickets scroll down to the editor.'),
+                'default' => true
             ]),
             'jsfile' => new ChoiceField([
                 'label' => $__('TinyMCE source'),

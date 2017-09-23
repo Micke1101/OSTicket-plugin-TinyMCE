@@ -25,9 +25,9 @@ class TinyMCEPlugin extends Plugin {
             $javascript = file_get_contents(__DIR__ . '/tinymce-osticket.js');
             $javascript = $this->handleConfig($javascript);
             $html = preg_replace('/<script.*redactor.*<\/script>/', '', $html);
-            print str_replace("</head>", $this->includeTinyMCE() . "<script>" 
+            print str_replace("</body>", $this->includeTinyMCE() . "<script>" 
             . $javascript 
-            . "</script></head>", $html);
+            . "</script></body>", $html);
         });
     }
     
@@ -52,8 +52,8 @@ class TinyMCEPlugin extends Plugin {
         $html = str_replace("{TINYMCE_PLUGINS}", ((is_array($config->get('plugins'))) ? implode(' ', array_keys($config->get('plugins'))) : '') . (($config->get('doautosave'))?" autosave":""), $html);
         $html = str_replace("{TINYMCE_MENUBAR}", (boolval($config->get('menubar')) ? 'true':'false'), $html);
         $html = str_replace("{TINYMCE_POWERED_BY}", (boolval($config->get('poweredby')) ? 'true':'false'), $html);
-        $html = str_replace("{TINYMCE_STAFF_PLUGINS}", ($thisstaff ? ' autolock signature contexttypeahead':''), $html);
-        $html = str_replace("{TINYMCE_LANGUAGE}", $lang, $html);
+        $html = str_replace("{TINYMCE_STAFF_PLUGINS}", ($thisstaff ? ' autolock signature contexttypeahead' . (boolval($config->get('focus')) ? ' focus':''):''), $html);
+        $html = str_replace("{TINYMCE_LANGUAGE}", ((file_exists($_SERVER[DOCUMENT_ROOT] . ROOT_PATH . "js/tinymce/langs/" . $lang . ".js")) ? "language: '" . $lang . "'," : ""), $html);
         if($config->get('doautosave')){
             $html = str_replace("{TINYMCE_AUTOSAVEOPTIONS}", "autosave_interval: \"" 
                 . $config->get('autosaveinterval') . "s\",autosave_restore_when_empty: " 
