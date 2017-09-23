@@ -1,4 +1,11 @@
+//Override autoscroll
 var thread = thread || {}; thread.scrollTo = function () { return ;};
+
+//Override redactor language
+$.Redactor = new Array();
+$.Redactor.opts = new Array();
+$.Redactor.opts.langs = new Array();
+
 
 tinymce.PluginManager.add('focus', function(editor, url) {
     editor.on('init', function(e){
@@ -157,12 +164,14 @@ tinymce.PluginManager.add('contexttypeahead', function(editor, url) {
             offset = editor.selection.getRng().endOffset,
             lhs = (allText) ? allText.substring(0, offset) : '',
             templatesearch = new RegExp(/%\{([^}]*)$/),
-            templatematch;
+            templatematch,
+            staffsearch = new RegExp(/@((\s|\w|\.)*)$/),
+            staffmatch;
 
         if (!lhs) {
             return !e.isDefaultPrevented();
         }
-        if (e.which == 27 || !(templatematch = templatesearch.exec(lhs))){
+        if (e.which == 27 || !(templatematch = templatesearch.exec(lhs)) && !(staffmatch = staffsearch.exec(lhs))){
             // No longer in a element — close typeahead
             return destroy();
         }
@@ -177,7 +186,7 @@ tinymce.PluginManager.add('contexttypeahead', function(editor, url) {
             clientRects = range.getClientRects(),
             position    = clientRects[0],
             editorPosition = editor.contentWindow.frameElement.getClientRects()[0],
-            backText    = templatematch[1],
+            backText    = ((templatematch) ? templatematch[1] : staffmatch[1]),
             parent      = sel.getNode().parentElement || this.editor,
             plugin      = this;
 
@@ -219,7 +228,7 @@ tinymce.PluginManager.add('contexttypeahead', function(editor, url) {
                             return false;
                         return (this.query.match(/\./g) || []).length == (item.match(/\./g) || []).length;
                     },
-                    onselect: select.bind(this),
+                    onselect: ((staffmatch) ? selectstaff.bind(this) : select.bind(this)),
                     scroll: true,
                     items: 100
                 });
@@ -321,6 +330,40 @@ tinymce.PluginManager.add('contexttypeahead', function(editor, url) {
 
         range.setStart(current, newLeft.length - 1);
         range.setEnd(current, newLeft.length - 1);
+        if (!autoExpand)
+            return destroy();
+
+        this.typeahead.val(selected);
+        this.typeahead.typeahead('lookup');
+        return false;
+    }
+    
+    function selectstaff(item, event) {
+        // Collapse multiple textNodes together
+        (editor.getDoc().body).normalize();
+        var current = editor.selection.getRng().commonAncestorContainer,
+            range   = editor.selection.getRng(),
+            cursorAt = editor.selection.getRng().endOffset,
+            // TODO: Consume immediately following `}` symbols
+            plugin  = this,
+            search  = new RegExp(/@.*$/);
+
+        // FIXME: ENTER will end up here, but current will be empty
+
+        if (!current)
+            return;
+
+        // Set cursor at the end of the expanded text
+        var left = current.textContent.substring(0, cursorAt),
+            right = current.textContent.substring(cursorAt),
+            autoExpand = event.target.nodeName == 'I',
+            selected = item.variable + (autoExpand ? '.' : '')
+            newLeft = left.replace(search, '@' + selected + '');
+
+        current.textContent = newLeft;
+
+        range.setStart(current, newLeft.length);
+        range.setEnd(current, newLeft.length);
         if (!autoExpand)
             return destroy();
 
