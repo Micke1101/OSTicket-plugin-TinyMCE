@@ -34,11 +34,11 @@ class TinyMCEPlugin extends Plugin {
     function includeTinyMCE(){
         $config = $this->getConfig();
         switch($config->get('jsfile')){
-            case 'js':
-                return "<script type=\"text/javascript\" src=\"" 
-                    . ROOT_PATH . "js/tinymce/tinymce.min.js\"></script>";
             case 'cloud':
                 return "<script type=\"text/javascript\" src=\"https://cloud.tinymce.com/stable/tinymce.min.js?apiKey=" . $config->get('apikey') . "\"></script>";
+            default:
+                return "<script type=\"text/javascript\" src=\"" 
+                    . ROOT_PATH . "js/tinymce/tinymce.min.js\"></script>";
         }
         return "";
     }
@@ -53,7 +53,11 @@ class TinyMCEPlugin extends Plugin {
         $html = str_replace("{TINYMCE_PLUGINS}", ((is_array($config->get('plugins'))) ? implode(' ', array_keys($config->get('plugins'))) : '') . (($config->get('doautosave'))?" autosave":""), $html);
         $html = str_replace("{TINYMCE_MENUBAR}", (boolval($config->get('menubar')) ? 'true':'false'), $html);
         $html = str_replace("{TINYMCE_POWERED_BY}", (boolval($config->get('poweredby')) ? 'true':'false'), $html);
-        $html = str_replace("{TINYMCE_STAFF_PLUGINS}", ($thisstaff ? ' autolock signature contexttypeahead' . (boolval($config->get('focus')) ? ' focus':''):''), $html);
+        $html = str_replace("{TINYMCE_STAFF_PLUGINS}", ($thisstaff ? 
+            ' autolock signature contexttypeahead' . (boolval($config->get('focus') 
+            && strpos($_SERVER['REQUEST_URI'], 'scp/tickets.php?id=') !== false
+            && strpos($_SERVER['REQUEST_URI'], '&a=edit') === false) ? 
+            ' focus':''):''), $html);
         $html = str_replace("{TINYMCE_LANGUAGE}", ((file_exists($_SERVER[DOCUMENT_ROOT] . ROOT_PATH . "js/tinymce/langs/" . $lang . ".js")) ? "language: '" . $lang . "'," : ""), $html);
         if($config->get('doautosave')){
             $html = str_replace("{TINYMCE_AUTOSAVEOPTIONS}", "autosave_interval: \"" 
