@@ -1,6 +1,3 @@
-//Override autoscroll
-var thread = thread || {}; thread.scrollTo = function () { return ;};
-
 //Override redactor language
 $.Redactor = new Array();
 $.Redactor.opts = new Array();
@@ -25,21 +22,6 @@ tinymce.PluginManager.add('closeextras', function(editor, url) {
         getMetadata: function () {
             return  {
                 name: "osTicket prevent extra notifications",
-                url: "https://github.com/Micke1101/OSTicket-plugin-TinyMCE"
-            };
-        }
-    };
-});
-
-tinymce.PluginManager.add('focus', function(editor, url) {
-    editor.on('init', function(e){
-        editor.focus();
-    });
-    
-    return {
-        getMetadata: function () {
-            return  {
-                name: "osTicket focus",
                 url: "https://github.com/Micke1101/OSTicket-plugin-TinyMCE"
             };
         }

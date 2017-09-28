@@ -163,12 +163,6 @@ class TinyMCEPluginConfig extends PluginConfig
                 'hint' => $__('The default height of TinyMCE'),
                 'default' => 250
             ]),
-            'focus' => new BooleanField([
-                'label' => $__('Autofocus'),
-                'required' => false,
-                'hint' => $__('When viewing tickets scroll down to the editor.'),
-                'default' => true
-            ]),
             'jsfile' => new ChoiceField([
                 'label' => $__('TinyMCE source'),
                 'required' => true,
