@@ -24,7 +24,7 @@ class TinyMCEPlugin extends Plugin {
             $html = ob_get_clean();
             $javascript = file_get_contents(__DIR__ . '/tinymce-osticket.js');
             $javascript = $this->handleConfig($javascript);
-            $html = preg_replace('/<script.*redactor.*<\/script>/', '', $html);
+            $html = preg_replace('/<script[^<]*redactor[^<]*><\/script>/', '', $html);
             print str_replace("</head>", $this->includeTinyMCE() . "<script>" 
             . $javascript 
             . "</script></head>", $html);
