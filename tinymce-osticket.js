@@ -397,7 +397,7 @@ $(function() {
             menubar: {TINYMCE_MENUBAR},
             branding: {TINYMCE_POWERED_BY},
             plugins: '{TINYMCE_PLUGINS}{TINYMCE_STAFF_PLUGINS} embedvideo closeextras',
-            toolbar: '{TINYMCE_TOOLBAR}',
+            {TINYMCE_TOOLBAR}
             {TINYMCE_LANGUAGE}
             paste_data_images: true,
             {TINYMCE_AUTOSAVEOPTIONS},

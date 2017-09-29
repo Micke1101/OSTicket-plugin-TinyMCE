@@ -122,10 +122,10 @@ class TinyMCEPluginConfig extends PluginConfig
                     ),
                 )
             ]),
-            'toolbar' => new TextboxField([
+            'toolbar' => new TextareaField([
                 'label' => $__('Toolbar'),
                 'required' => false,
-                'configuration'=>array('size'=>50,'length'=>1024),
+                'configuration'=>array('cols'=>50,'length'=>1024,'rows'=>4,'html'=>false),
                 'hint' => sprintf($__('How do you want your toolbar to look like, %s'), '<a href="https://www.tinymce.com/docs/configure/editor-appearance/#toolbar">Toolbar</a>'),
                 'default' => 'insert | undo redo |  styleselect | bold italic backcolor  | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help'
             ]),

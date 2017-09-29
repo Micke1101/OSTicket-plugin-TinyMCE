@@ -61,7 +61,13 @@ class TinyMCEPlugin extends Plugin {
                 . (boolval($config->get('tryrestoreempty')) ? 'true':'false') 
                 . ",autosave_retention: \"" . $config->get('autosaveretention') . "m\"", $html);
         }
-        $html = str_replace("{TINYMCE_TOOLBAR}", $config->get('toolbar'), $html);
+        $newToolbar = "";
+        $row = 1;
+        foreach(explode("\n", $config->get('toolbar')) as &$toolbar){
+            $newToolbar = $newToolbar . "toolbar" . $row . ": '" . trim($toolbar) . "',";
+            $row++;
+        }
+        $html = str_replace("{TINYMCE_TOOLBAR}", $newToolbar, $html);
         return $html;
     }
     
