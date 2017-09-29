@@ -56,10 +56,10 @@ tinymce.PluginManager.add('embedvideo', function(editor, url) {
 });
 
 tinymce.PluginManager.add('autolock', function(editor, url) {
-    var code = $(editor.getElement().closest('form')).find('[name=lockCode]');
+    var code = $(editor.getElement()).closest('form').find('[name=lockCode]');
     if(code.length)
         editor.on('keydown', function(e){
-            $(editor.getElement().closest('[data-lock-object-id]')).exclusive('acquire');
+            $(editor.getElement()).closest('[data-lock-object-id]').exclusive('acquire');
         });
     
     return {
