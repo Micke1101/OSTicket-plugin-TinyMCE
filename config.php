@@ -143,6 +143,12 @@ class TinyMCEPluginConfig extends PluginConfig
                 'default' => 'lightgray',
                 'choices' => $skins
             ]),
+            'browserspellcheck' => new BooleanField([
+                'label' => $__('Browser spellchecker'),
+                'required' => false,
+                'hint' => $__('Enable the browsers native spellchecker.'),
+                'default' => true
+            ]),
             'menubar' => new BooleanField([
                 'label' => $__('Show menubar'),
                 'required' => false,
