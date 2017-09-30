@@ -3,6 +3,55 @@ $.Redactor = new Array();
 $.Redactor.opts = new Array();
 $.Redactor.opts.langs = new Array();
 
+tinymce.PluginManager.add('cannedresponses', function(editor, url) {
+    editor.on('init', function(e){
+        if(editor.id == "response"){
+            $('form select#cannedResp').change(function() {
+                var fObj = $(this).closest('form');
+                var cid = $(this).val();
+                var tid = $(':input[name=id]',fObj).val();
+                $(this).find('option:first').attr('selected', 'selected').parent('select');
+
+                var $url = 'ajax.php/kb/canned-response/'+cid+'.json';
+                if (tid)
+                    $url =  'ajax.php/tickets/'+tid+'/canned-resp/'+cid+'.json';
+
+                $.ajax({
+                    type: "GET",
+                    url: $url,
+                    dataType: 'json',
+                    cache: false,
+                    success: function(canned){
+                        //Canned response.
+                        if(canned.response) {
+                            editor.setContent(editor.getContent() + canned.response);
+                        }
+                        //Canned attachments.
+                        var ca = $('.attachments', fObj);
+                        if(canned.files && ca.length) {
+                            var fdb = ca.find('.dropzone').data('dropbox');
+                            $.each(canned.files,function(i, j) {
+                              fdb.addNode(j);
+                            });
+                        }
+                    }
+                })
+                .done(function() { })
+                .fail(function() { });
+            });
+        }
+    });
+    
+    return {
+        getMetadata: function () {
+            return  {
+                name: "osTicket canned responses",
+                url: "https://github.com/Micke1101/OSTicket-plugin-TinyMCE"
+            };
+        }
+    };
+});
+
 tinymce.PluginManager.add('closeextras', function(editor, url) {
     editor.on('init', function(e){
         editor.notificationManager.open=(function(){
@@ -396,7 +445,7 @@ $(function() {
             skin: '{TINYMCE_SKIN}',
             menubar: {TINYMCE_MENUBAR},
             branding: {TINYMCE_POWERED_BY},
-            plugins: '{TINYMCE_PLUGINS}{TINYMCE_STAFF_PLUGINS} embedvideo closeextras powerpaste',
+            plugins: '{TINYMCE_PLUGINS}{TINYMCE_STAFF_PLUGINS} embedvideo closeextras',
             toolbar: '{TINYMCE_TOOLBAR}',
             {TINYMCE_LANGUAGE}
             paste_data_images: true,
@@ -428,48 +477,6 @@ $(function() {
     $(document).ajaxStop(findRichtextBoxes);
     $(document).on('pjax:success', findRichtextBoxes);
     $(document).on('pjax:start', cleanupTinyMCEElements);
-});
-
-$(document).ready(function() {
-    $('form select#cannedResp').change(function() {
-        var fObj = $(this).closest('form');
-        var cid = $(this).val();
-        var tid = $(':input[name=id]',fObj).val();
-        $(this).find('option:first').attr('selected', 'selected').parent('select');
-
-        var $url = 'ajax.php/kb/canned-response/'+cid+'.json';
-        if (tid)
-            $url =  'ajax.php/tickets/'+tid+'/canned-resp/'+cid+'.json';
-
-        $.ajax({
-            type: "GET",
-            url: $url,
-            dataType: 'json',
-            cache: false,
-            success: function(canned){
-                //Canned response.
-                var box = $('#response',fObj),
-                    tmce = tinymce.get('response');
-                if(canned.response) {
-                    if (tmce){
-                        tmce.setContent(tmce.getContent() + canned.response);
-                    }
-                    else
-                        box.val(box.val() + canned.response);
-                }
-                //Canned attachments.
-                var ca = $('.attachments', fObj);
-                if(canned.files && ca.length) {
-                    var fdb = ca.find('.dropzone').data('dropbox');
-                    $.each(canned.files,function(i, j) {
-                      fdb.addNode(j);
-                    });
-                }
-            }
-        })
-        .done(function() { })
-        .fail(function() { });
-    });
 });
 $(document).ajaxError(function(event, request, settings) {
     /*if (settings.url.indexOf('ajax.php/draft') != -1
