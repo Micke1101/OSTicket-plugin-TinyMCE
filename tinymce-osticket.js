@@ -56,10 +56,10 @@ tinymce.PluginManager.add('embedvideo', function(editor, url) {
 });
 
 tinymce.PluginManager.add('autolock', function(editor, url) {
-    var code = $(editor.getElement()).closest('form').find('[name=lockCode]');
+    var code = $(editor.getElement().closest('form')).find('[name=lockCode]');
     if(code.length)
         editor.on('keydown', function(e){
-            $(editor.getElement()).closest('[data-lock-object-id]').exclusive('acquire');
+            $(editor.getElement().closest('[data-lock-object-id]')).exclusive('acquire');
         });
     
     return {
@@ -396,12 +396,11 @@ $(function() {
             skin: '{TINYMCE_SKIN}',
             menubar: {TINYMCE_MENUBAR},
             branding: {TINYMCE_POWERED_BY},
-            browser_spellcheck: {TINYMCE_BROWSER_SPELLCHECK},
-            plugins: '{TINYMCE_PLUGINS}{TINYMCE_STAFF_PLUGINS} embedvideo closeextras',
-            {TINYMCE_TOOLBAR}
+            plugins: '{TINYMCE_PLUGINS}{TINYMCE_STAFF_PLUGINS} embedvideo closeextras powerpaste',
+            toolbar: '{TINYMCE_TOOLBAR}',
             {TINYMCE_LANGUAGE}
             paste_data_images: true,
-            {TINYMCE_AUTOSAVEOPTIONS},
+            {TINYMCE_AUTOSAVEOPTIONS}
             init_instance_callback: function (editor) {
                 editor.on('blur', function (e) {
                     $(this).siblings('textarea').trigger('change');
