@@ -107,6 +107,7 @@ class TinyMCEPluginConfig extends PluginConfig
                         'table' => __('Table'),
                         'textcolor' => __('Text color'),
                         'textpattern' => __('Textpatterns'),
+                        'toc' => __('Table of Contents'),
                         'visualblocks' => __('Visual Blocks'),
                         'visualchars' => __('Make invisible characters visible'),
                         'wordcount' => __('Word count'),
@@ -118,7 +119,6 @@ class TinyMCEPluginConfig extends PluginConfig
                         'mediaembed' => __('Embed Rich Media'),
                         'powerpaste' => __('Automaticly cleanup office content'),
                         'tinymcespellchecker' => __('Spell checker'),
-                        'toc' => __('Table of Contents'),
                     ),
                 )
             ]),
