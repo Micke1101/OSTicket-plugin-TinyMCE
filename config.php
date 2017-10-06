@@ -33,11 +33,11 @@ class TinyMCEPluginConfig extends PluginConfig
         list ($__, $_N) = self::translate();
         $themes = array();
         $directory = $_SERVER[DOCUMENT_ROOT] . ROOT_PATH . "js/tinymce/";
-        if(($themesfound = scandir($directory . "themes")))
+        if(is_dir($directory . "themes") && ($themesfound = scandir($directory . "themes")))
             foreach(preg_grep('/^([^.])/', $themesfound) as $theme)
                 $themes[$theme] = $theme;
         $skins = array();
-        if(($skinsfound = scandir($directory . "skins")))
+        if(is_dir($directory . "skins") && ($skinsfound = scandir($directory . "skins")))
             foreach(preg_grep('/^([^.])/', $skinsfound) as $skin)
                 $skins[$skin] = $skin;
         return array(
