@@ -53,6 +53,7 @@ class TinyMCEPlugin extends Plugin {
         $html = str_replace("{TINYMCE_PLUGINS}", ((is_array($config->get('plugins'))) ? implode(' ', array_keys($config->get('plugins'))) : '') . (($config->get('doautosave'))?" autosave":""), $html);
         $html = str_replace("{TINYMCE_MENUBAR}", (boolval($config->get('menubar')) ? 'true':'false'), $html);
         $html = str_replace("{TINYMCE_POWERED_BY}", (boolval($config->get('poweredby')) ? 'true':'false'), $html);
+		$html = str_replace("{TINYMCE_BROWSER_SPELLCHECK}", (boolval($config->get('browserspellcheck')) ? 'true':'false'), $html);
         $html = str_replace("{TINYMCE_STAFF_PLUGINS}", ($thisstaff ? ' autolock signature contexttypeahead cannedresponses':''), $html);
         $html = str_replace("{TINYMCE_LANGUAGE}", ((file_exists($_SERVER[DOCUMENT_ROOT] . ROOT_PATH . "js/tinymce/langs/" . $lang . ".js")) ? "language: '" . $lang . "'," : ""), $html);
         if($config->get('doautosave')){

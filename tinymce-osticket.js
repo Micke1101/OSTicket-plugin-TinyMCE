@@ -445,6 +445,7 @@ $(function() {
             skin: '{TINYMCE_SKIN}',
             menubar: {TINYMCE_MENUBAR},
             branding: {TINYMCE_POWERED_BY},
+			browser_spellcheck: {TINYMCE_BROWSER_SPELLCHECK},
             plugins: '{TINYMCE_PLUGINS}{TINYMCE_STAFF_PLUGINS} embedvideo closeextras',
             toolbar: '{TINYMCE_TOOLBAR}',
             {TINYMCE_LANGUAGE}
