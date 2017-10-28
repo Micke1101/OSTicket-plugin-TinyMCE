@@ -22,12 +22,13 @@ class TinyMCEPlugin extends Plugin {
         ob_start();
         register_shutdown_function(function () {
             $html = ob_get_clean();
-            $javascript = file_get_contents(__DIR__ . '/tinymce-osticket.js');
+            $javascript = file_get_contents(__DIR__ . '/tinymce-config.js');
             $javascript = $this->handleConfig($javascript);
             $html = preg_replace('/<script[^<]*redactor[^<]*><\/script>/', '', $html);
             print str_replace("</head>", $this->includeTinyMCE() . "<script>" 
             . $javascript 
-            . "</script></head>", $html);
+            . "</script><script type=\"text/javascript\" src=\"" 
+                    . ROOT_PATH . "include/" . $this->getInstallPath() . "/tinymce-osticket.js\"></script></head>", $html);
         });
     }
     
