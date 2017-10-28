@@ -28,7 +28,8 @@ class TinyMCEPlugin extends Plugin {
             print str_replace("</head>", $this->includeTinyMCE() . "<script>" 
             . $javascript 
             . "</script><script type=\"text/javascript\" src=\"" 
-                    . ROOT_PATH . "include/" . $this->getInstallPath() . "/tinymce-osticket.js\"></script></head>", $html);
+                    . ROOT_PATH . "include/" . $this->getInstallPath() 
+					. "/tinymce-osticket.min.js\"></script></head>", $html);
         });
     }
     
