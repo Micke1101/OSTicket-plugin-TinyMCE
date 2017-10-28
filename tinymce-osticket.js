@@ -435,7 +435,7 @@ $(function() {
         });
         return html;
     },
-    tiny = function(el, options) {
+    tiny = $.tiny = function(el, options) {
         tinymce.init({
             target: el,
             height: {TINYMCE_HEIGHT},
@@ -478,6 +478,82 @@ $(function() {
     $(document).ajaxStop(findRichtextBoxes);
     $(document).on('pjax:success', findRichtextBoxes);
     $(document).on('pjax:start', cleanupTinyMCEElements);
+});
+$(document).ready(function() {
+	$(document).off('click.note', '.quicknote .action.edit-note');
+	$(document).off('click.note', '.quicknote .action.cancel-edit');
+	$(document).off('click.note', '.quicknote .action.save-note');
+	$(document).off('click', '#new-note');
+	$(document).on('click.note', '.quicknote .action.edit-note', function() {
+		var note = $(this).closest('.quicknote'),
+			body = note.find('.body'),
+			T = $('<textarea>').text(body.html());
+		if (note.closest('.dialog, .tip_box').length)
+			T.addClass('no-bar small');
+		body.replaceWith(T);
+		$.tiny(T.get(0));
+		note.find('.action.edit-note').hide();
+		note.find('.action.save-note').show();
+		note.find('.action.cancel-edit').show();
+		$('#new-note-box').hide();
+		return false;
+	});
+	$(document).on('click.note', '.quicknote .action.cancel-edit', function() {
+		var note = $(this).closest('.quicknote'),
+			T = note.find('textarea'),
+			body = $('<div class="body">');
+		body.load('ajax.php/note/' + note.data('id'), function() {
+			try { tinymce.get(T[0].id).remove(); } catch (e) {}
+			T.replaceWith(body);
+			note.find('.action.save-note').hide();
+			note.find('.action.cancel-edit').hide();
+			note.find('.action.edit-note').show();
+			$('#new-note-box').show();
+		});
+		return false;
+	});
+	$(document).on('click.note', '.quicknote .action.save-note', function() {
+		var note = $(this).closest('.quicknote'),
+			T = note.find('textarea');
+		$.post('ajax.php/note/' + note.data('id'),
+		{ note: tinymce.get(T[0].id).getContent() },
+		function(html) {
+			var body = $('<div class="body">').html(html);
+			try { tinymce.get(T[0].id).remove(); } catch (e) {}
+			T.replaceWith(body);
+			note.find('.action.save-note').hide();
+			note.find('.action.cancel-edit').hide();
+			note.find('.action.edit-note').show();
+			$('#new-note-box').show();
+		},
+		'html'
+		);
+		return false;
+	});
+	$(document).on('click', '#new-note', function() {
+		var note = $(this).closest('.quicknote'),
+			T = $('<textarea>'),
+			button = $('<input type="button">').val(__('Create'));
+		button.click(function() {
+			$.post('ajax.php/' + note.data('url'),
+				{ note: tinymce.get(T[0].id).getContent(), no_options: note.hasClass('no-options') },
+				function(response) {
+					tinymce.get(T[0].id).remove();
+					T.replaceWith(note);
+					$(response).show('highlight').insertBefore(note.parent());
+					$('.submit', note.parent()).remove();
+				},
+			'html'
+			);
+		});
+		if (note.closest('.dialog, .tip_box').length)
+			T.addClass('no-bar small');
+		note.replaceWith(T);
+		$('<p>').addClass('submit').css('text-align', 'center')
+			.append(button).appendTo(T.parent());
+		$.tiny(T.get(0));
+		return false;
+	});
 });
 $(document).ajaxError(function(event, request, settings) {
     /*if (settings.url.indexOf('ajax.php/draft') != -1
