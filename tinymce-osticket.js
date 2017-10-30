@@ -423,18 +423,6 @@ tinymce.PluginManager.add('contexttypeahead', function(editor, url) {
 });
 
 $(function() {
-    var captureImageSizes = function(html) {
-        $('img', this.$box).each(function(i, img) {
-            // TODO: Rewrite the entire <img> tag. Otherwise the @width
-            // and @height attributes will begin to accumulate
-            before = img.outerHTML;
-            if (img.clientWidth && img.clientHeight)
-                $(img).attr('width', img.clientWidth)
-                      .attr('height',img.clientHeight);
-            html = html.replace(before, img.outerHTML);
-        });
-        return html;
-    },
     findRichtextBoxes = function() {
         $('.richtext').each(function(i,el) {
             if ($(el).hasClass('ifhtml'))
@@ -533,16 +521,6 @@ $(document).ready(function() {
 	});
 });
 $(document).ajaxError(function(event, request, settings) {
-    /*if (settings.url.indexOf('ajax.php/draft') != -1
-        && settings.type.toUpperCase() == 'POST') {
-        $('.richtext').each(function() {
-            var redactor = $(this).data('redactor');
-            if (redactor) {
-                redactor.autosave.disable();
-                clearInterval(redactor.autosaveInterval);
-            }
-        });
-        $.sysAlert(__('Unable to save draft.'),
-        __('Refresh the current page to restore and continue your draft.'));
-    }*/
+    $.sysAlert(__('Ajax error.'),
+        __('An ajax error occured.'));
 });
