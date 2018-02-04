@@ -41,12 +41,12 @@ class TinyMCEPluginConfig extends PluginConfig
             foreach(preg_grep('/^([^.])/', $skinsfound) as $skin)
                 $skins[$skin] = $skin;
         return array(
-            'mainoptions' => new SectionBreakField([
+            'mainoptions' => new SectionBreakField(array(
                 'label' => $__('Main options'),
                 'hint' => $__('Mainly visual settings.'),
                 'default' => TRUE
-            ]),
-            'plugins' => new ChoiceField([
+            )),
+            'plugins' => new ChoiceField(array(
                 'label' => $__('Plugins'),
                 'required' => false,
                 'hint' => $__('What plugins do you want to load.'),
@@ -121,55 +121,55 @@ class TinyMCEPluginConfig extends PluginConfig
                         'tinymcespellchecker' => __('Spell checker'),
                     ),
                 )
-            ]),
-            'toolbar' => new TextareaField([
+            )),
+            'toolbar' => new TextareaField(array(
                 'label' => $__('Toolbar'),
                 'required' => false,
                 'configuration'=>array('cols'=>50,'length'=>1024,'rows'=>4,'html'=>false),
                 'hint' => sprintf($__('How do you want your toolbar to look like, %s'), '<a href="https://www.tinymce.com/docs/configure/editor-appearance/#toolbar">Toolbar</a>'),
                 'default' => 'insert | undo redo |  styleselect | bold italic backcolor  | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help'
-            ]),
-            'theme' => new ChoiceField([
+            )),
+            'theme' => new ChoiceField(array(
                 'label' => $__('Theme'),
                 'required' => true,
                 'hint' => $__('What theme do you want to use.'),
                 'default' => 'modern',
                 'choices' => $themes
-            ]),
-            'skin' => new ChoiceField([
+            )),
+            'skin' => new ChoiceField(array(
                 'label' => $__('Skin'),
                 'required' => true,
                 'hint' => sprintf($__('What skin do you want to use. %s'), '<a href="http://skin.tinymce.com/">Skin creator</a>'),
                 'default' => 'lightgray',
                 'choices' => $skins
-            ]),
-            'browserspellcheck' => new BooleanField([
+            )),
+            'browserspellcheck' => new BooleanField(array(
                 'label' => $__('Browser spellchecker'),
                 'required' => false,
                 'hint' => $__('Enable the browsers native spellchecker.'),
                 'default' => true
-            ]),
-            'menubar' => new BooleanField([
+            )),
+            'menubar' => new BooleanField(array(
                 'label' => $__('Show menubar'),
                 'required' => false,
                 'hint' => $__('Display the menubar or not.'),
                 'default' => true
-            ]),
-            'poweredby' => new BooleanField([
+            )),
+            'poweredby' => new BooleanField(array(
                 'label' => $__('Show powered by message'),
                 'required' => false,
                 'hint' => $__('Display the powered by message or not.'),
                 'default' => true
-            ]),
-            'height' => new TextboxField([
+            )),
+            'height' => new TextboxField(array(
                 'label' => $__('Height'),
                 'required' => true,
                 'size'=>16,
                 'validator' => 'number',
                 'hint' => $__('The default height of TinyMCE'),
                 'default' => 250
-            ]),
-            'jsfile' => new ChoiceField([
+            )),
+            'jsfile' => new ChoiceField(array(
                 'label' => $__('TinyMCE source'),
                 'required' => true,
                 'hint' => $__('Where do you want to load TinyMCE from.'),
@@ -178,47 +178,47 @@ class TinyMCEPluginConfig extends PluginConfig
                     'js' => sprintf(__('Javascript folder (%s)'), 'js/tinymce'),
                     'cloud' => __('Cloud hosted'),
                 )
-            ]),
-            'apikey' => new TextboxField([
+            )),
+            'apikey' => new TextboxField(array(
                 'label' => $__('TinyMCE API Key'),
                 'required' => false,
                 'size'=>16,
                 'hint' => sprintf($__('If you\'re using cloud hosted TinyMCE you may require an API key.<br/>%sSign up for a API key%s'), '<a href="https://store.ephox.com/signup/">', '</a>'),
                 'default' => ''
-            ]),
-            'autosaveoptions' => new SectionBreakField([
+            )),
+            'autosaveoptions' => new SectionBreakField(array(
                 'label' => $__('Autosave options'),
                 'hint' => $__('The options regarding autosaving/drafts.'),
                 'default' => TRUE
-            ]),
-            'doautosave' => new BooleanField([
+            )),
+            'doautosave' => new BooleanField(array(
                 'label' => $__('Enable autosaving'),
                 'required' => false,
                 'hint' => $__('TinyMCE will create drafts automaticly.'),
                 'default' => true
-            ]),
-            'autosaveinterval' => new TextboxField([
+            )),
+            'autosaveinterval' => new TextboxField(array(
                 'label' => $__('Autosave frequency'),
                 'required' => false,
                 'size'=>16,
                 'validator' => 'number',
                 'hint' => $__('How long between each save in seconds.'),
                 'default' => '30'
-            ]),
-            'tryrestoreempty' => new BooleanField([
+            )),
+            'tryrestoreempty' => new BooleanField(array(
                 'label' => $__('Restore when empty'),
                 'required' => false,
                 'hint' => $__('If the user has a draft available restore it automaticly.'),
                 'default' => true
-            ]),
-            'autosaveretention' => new TextboxField([
+            )),
+            'autosaveretention' => new TextboxField(array(
                 'label' => $__('Draft lifespan'),
                 'required' => false,
                 'size'=>16,
                 'validator' => 'number',
                 'hint' => $__('How long should a draft be stored for in minutes.'),
                 'default' => '30'
-            ]),
+            )),
         );
     }
 }
